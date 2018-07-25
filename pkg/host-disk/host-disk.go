@@ -36,14 +36,14 @@ import (
 
 const pvcBaseDir = "/var/run/kubevirt-private/vmi-disks"
 
-func getDiskImgPath(volumeName string) string {
-	return path.Join(pvcBaseDir, volumeName, "disk.img")
-}
-
 func calculateRawImgSize(quantity resource.Quantity) int64 {
 	// TODO: take fs overhead into account
 	size, _ := quantity.AsInt64()
 	return size
+}
+
+func GetDiskImgPath(volumeName string) string {
+	return path.Join(pvcBaseDir, volumeName, "disk.img")
 }
 
 func GetPVCSize(pvcName string, namespace string, clientset kubecli.KubevirtClient) (resource.Quantity, error) {
@@ -63,12 +63,11 @@ func CreateHostDisks(vmi *v1.VirtualMachineInstance) error {
 	// TODO: add checks:
 	// - if there is enough space
 	for _, volume := range vmi.Spec.Volumes {
-		if hostDisk := volume.VolumeSource.HostDisk; hostDisk.PersistentVolumeClaim != nil {
+		if hostDisk := volume.VolumeSource.HostDisk; hostDisk.Type == v1.HostDiskExistsOrCreate && hostDisk.Path != "" {
 			size := strconv.FormatInt(calculateRawImgSize(hostDisk.Capacity), 10)
-			file := getDiskImgPath(volume.Name)
 
-			if _, err := os.Stat(file); os.IsNotExist(err) {
-				if err := exec.Command("qemu-img", "create", "-f", "raw", file, size).Run(); err != nil {
+			if _, err := os.Stat(hostDisk.Path); os.IsNotExist(err) {
+				if err := exec.Command("qemu-img", "create", "-f", "raw", hostDisk.Path, size).Run(); err != nil {
 					return err
 				}
 			} else if err != nil {
