@@ -415,8 +415,9 @@ func (d *VirtualMachineController) execute(key string) error {
 	return nil
 }
 
-func (d *VirtualMachineController) injectHostDisks(vmi *v1.VirtualMachineInstance) error {
-	// host disks are created based on PersistenVolumeClaims
+func (d *VirtualMachineController) injectPVCHostDisks(vmi *v1.VirtualMachineInstance) error {
+	// if persistent volume claim is defined in spec,
+	// a hostDisk will be injected based on PersistentVolumeClaim
 	for i := range vmi.Spec.Volumes {
 		if volumeSource := &vmi.Spec.Volumes[i].VolumeSource; volumeSource.PersistentVolumeClaim != nil {
 			pvcSize, err := hostdisk.GetPVCSize(volumeSource.PersistentVolumeClaim.ClaimName, vmi.Namespace, d.clientset)
@@ -424,8 +425,9 @@ func (d *VirtualMachineController) injectHostDisks(vmi *v1.VirtualMachineInstanc
 				return err
 			}
 			volumeSource.HostDisk = v1.HostDisk{
-				PersistentVolumeClaim: volumeSource.PersistentVolumeClaim,
-				Capacity:              pvcSize,
+				Path:     hostdisk.GetDiskImgPath(vmi.Spec.Volumes[i].Name),
+				Type:     v1.HostDiskExistsOrCreate,
+				Capacity: pvcSize,
 			}
 		}
 	}
@@ -586,7 +588,7 @@ func (d *VirtualMachineController) processVmUpdate(origVMI *v1.VirtualMachineIns
 		return goerror.New(fmt.Sprintf("Can not update a VirtualMachineInstance with expired watchdog."))
 	}
 
-	err = d.injectHostDisks(vmi)
+	err = d.injectPVCHostDisks(vmi)
 	if err != nil {
 		return err
 	}
