@@ -324,7 +324,7 @@ type Volume struct {
 type VolumeSource struct {
 	// HostDisk represents a disk created on a cluster level based on a PersistentVolumeClaim
 	// +optional
-	HostDisk HostDisk `json:"hostDisk,omitempty"`
+	HostDisk *HostDisk `json:"hostDisk,omitempty"`
 	// PersistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace.
 	// Directly attached to the vmi via qemu.
 	// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims

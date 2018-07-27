@@ -451,11 +451,13 @@ func (d *VirtualMachineController) injectPVCHostDisks(vmi *v1.VirtualMachineInst
 			if err != nil {
 				return err
 			}
-			volumeSource.HostDisk = v1.HostDisk{
+			volumeSource.HostDisk = &v1.HostDisk{
 				Path:     hostdisk.GetDiskImgPath(vmi.Spec.Volumes[i].Name),
 				Type:     v1.HostDiskExistsOrCreate,
 				Capacity: pvcSize,
 			}
+			// PersistenVolumeClaim is replaced by HostDisk
+			volumeSource.PersistentVolumeClaim = nil
 		}
 	}
 	return nil
