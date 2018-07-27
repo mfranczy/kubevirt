@@ -63,7 +63,7 @@ func CreateHostDisks(vmi *v1.VirtualMachineInstance) error {
 	// TODO: add checks:
 	// - if there is enough space
 	for _, volume := range vmi.Spec.Volumes {
-		if hostDisk := volume.VolumeSource.HostDisk; hostDisk.Type == v1.HostDiskExistsOrCreate && hostDisk.Path != "" {
+		if hostDisk := volume.VolumeSource.HostDisk; hostDisk != nil && hostDisk.Type == v1.HostDiskExistsOrCreate && hostDisk.Path != "" {
 			size := strconv.FormatInt(calculateRawImgSize(hostDisk.Capacity), 10)
 
 			if _, err := os.Stat(hostDisk.Path); os.IsNotExist(err) {
