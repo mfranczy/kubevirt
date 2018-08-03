@@ -322,7 +322,7 @@ type Volume struct {
 // ---
 // +k8s:openapi-gen=true
 type VolumeSource struct {
-	// HostDisk represents a disk created on a cluster level based on a PersistentVolumeClaim
+	// HostDisk represents a disk created on the cluster level
 	// +optional
 	HostDisk *HostDisk `json:"hostDisk,omitempty"`
 	// PersistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace.
