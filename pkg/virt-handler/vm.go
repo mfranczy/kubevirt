@@ -425,7 +425,7 @@ func (d *VirtualMachineController) injectPVCHostDisks(vmi *v1.VirtualMachineInst
 				return err
 			}
 			volumeSource.HostDisk = &v1.HostDisk{
-				Path:     hostdisk.GetDiskImgPath(vmi.Spec.Volumes[i].Name),
+				Path:     hostdisk.GetPVCDiskImgPath(vmi.Spec.Volumes[i].Name),
 				Type:     v1.HostDiskExistsOrCreate,
 				Capacity: pvcSize,
 			}
