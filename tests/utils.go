@@ -1013,8 +1013,6 @@ func NewRandomVMIWithHostDisk(diskType v1.HostDiskType) *v1.VirtualMachineInstan
 
 	if diskType == v1.HostDiskExistsOrCreate {
 		vmi.Spec.Volumes[0].HostDisk.Capacity = resource.MustParse(defaultDiskSize)
-	} else {
-		vmi.Spec.Volumes[0].HostDisk.Capacity = resource.Quantity{}
 	}
 
 	return vmi
