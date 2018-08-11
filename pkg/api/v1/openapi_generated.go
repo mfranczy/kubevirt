@@ -749,18 +749,18 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevirt.io/kubevirt/pkg/api/v1.HostDisk": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "Represents a disk created on a cluster level --",
+					Description: "Represents a disk created on the cluster level --",
 					Properties: map[string]spec.Schema{
 						"path": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Path to host disk located on the cluster",
+								Description: "The path to HostDisk image located on the cluster",
 								Type:        []string{"string"},
 								Format:      "",
 							},
 						},
 						"type": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Contains information if disk exists or should be created allowed options are 'Disk' and 'DiskOrCreate'",
+								Description: "Contains information if disk.img exists or should be created allowed options are 'Disk' and 'DiskOrCreate'",
 								Type:        []string{"string"},
 								Format:      "",
 							},

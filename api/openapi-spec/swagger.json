@@ -3768,7 +3768,7 @@
     }
    },
    "v1.HostDisk": {
-    "description": "Represents a disk created on a cluster level\n--\n+k8s:openapi-gen=true",
+    "description": "Represents a disk created on the cluster level\n--\n+k8s:openapi-gen=true",
     "required": [
      "path",
      "type"
@@ -3779,11 +3779,11 @@
       "type": "string"
      },
      "path": {
-      "description": "Path to host disk located on the cluster",
+      "description": "The path to HostDisk image located on the cluster",
       "type": "string"
      },
      "type": {
-      "description": "Contains information if disk exists or should be created\nallowed options are 'Disk' and 'DiskOrCreate'",
+      "description": "Contains information if disk.img exists or should be created\nallowed options are 'Disk' and 'DiskOrCreate'",
       "type": "string"
      }
     }
