@@ -997,6 +997,29 @@ func NewRandomVMIWithEphemeralPVC(claimName string) *v1.VirtualMachineInstance {
 	return vmi
 }
 
+func NewRandomVMIWithHostDisk(diskType v1.HostDiskType) *v1.VirtualMachineInstance {
+	vmi := NewRandomVMI()
+
+	vmi.Spec.Domain.Resources.Requests[k8sv1.ResourceMemory] = resource.MustParse("64M")
+	vmi.Spec.Volumes = append(vmi.Spec.Volumes, v1.Volume{
+		Name: "host-disk",
+		VolumeSource: v1.VolumeSource{
+			HostDisk: &v1.HostDisk{
+				Path: "/data/disk.img",
+				Type: diskType,
+			},
+		},
+	})
+
+	if diskType == v1.HostDiskExistsOrCreate {
+		vmi.Spec.Volumes[0].HostDisk.Capacity = resource.MustParse(defaultDiskSize)
+	} else {
+		vmi.Spec.Volumes[0].HostDisk.Capacity = resource.Quantity{}
+	}
+
+	return vmi
+}
+
 func NewRandomVMIWithWatchdog() *v1.VirtualMachineInstance {
 	vmi := NewRandomVMIWithEphemeralDisk(RegistryDiskFor(RegistryDiskAlpine))
 
