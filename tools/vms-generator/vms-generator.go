@@ -50,6 +50,7 @@ const (
 	vmiFedora          = "vmi-fedora"
 	vmiNoCloud         = "vmi-nocloud"
 	vmiPVC             = "vmi-pvc"
+	vmiHostDisk        = "vmi-host-disk"
 	vmiWindows         = "vmi-windows"
 	vmiSlirp           = "vmi-slirp"
 	vmiWithHookSidecar = "vmi-with-sidecar-hook"
@@ -212,6 +213,30 @@ func addPVCDisk(spec *v1.VirtualMachineInstanceSpec, claimName string, bus strin
 	return spec
 }
 
+func addHostDisk(spec *v1.VirtualMachineInstanceSpec, path string, hostDiskType v1.HostDiskType, size string) *v1.VirtualMachineInstanceSpec {
+	spec.Domain.Devices.Disks = append(spec.Domain.Devices.Disks, v1.Disk{
+		Name:       "host-disk",
+		VolumeName: "hostdiskvolume",
+		DiskDevice: v1.DiskDevice{
+			Disk: &v1.DiskTarget{
+				Bus: busVirtio,
+			},
+		},
+	})
+
+	spec.Volumes = append(spec.Volumes, v1.Volume{
+		Name: "hostdiskvolume",
+		VolumeSource: v1.VolumeSource{
+			HostDisk: &v1.HostDisk{
+				Path:     path,
+				Type:     hostDiskType,
+				Capacity: resource.MustParse(size),
+			},
+		},
+	})
+	return spec
+}
+
 func getVMIEphemeral() *v1.VirtualMachineInstance {
 	vmi := getBaseVMI(vmiEphemeral)
 
@@ -273,6 +298,13 @@ func getVMIPvc() *v1.VirtualMachineInstance {
 	vmi := getBaseVMI(vmiPVC)
 
 	addPVCDisk(&vmi.Spec, "disk-alpine", busVirtio, "pvcdisk", "pvcvolume")
+	return vmi
+}
+
+func getVMIHostDisk() *v1.VirtualMachineInstance {
+	vmi := getBaseVMI(vmiHostDisk)
+
+	addHostDisk(&vmi.Spec, "/data/disk.img", v1.HostDiskExistsOrCreate, "1Gi")
 	return vmi
 }
 
@@ -611,6 +643,7 @@ func main() {
 		vmiFedora:          getVMIEphemeralFedora(),
 		vmiNoCloud:         getVMINoCloud(),
 		vmiPVC:             getVMIPvc(),
+		vmiHostDisk:        getVMIHostDisk(),
 		vmiWindows:         getVMIWindows(),
 		vmiSlirp:           getVMISlirp(),
 		vmiWithHookSidecar: getVMIWithHookSidecar(),
