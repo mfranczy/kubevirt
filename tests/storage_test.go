@@ -22,6 +22,7 @@ package tests_test
 import (
 	"flag"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/goexpect"
@@ -263,7 +264,7 @@ var _ = Describe("Storage", func() {
 			})
 		})
 
-		Context("With VirtualMachineInstance with two PVCs", func() {
+		FContext("With VirtualMachineInstance with two PVCs", func() {
 			BeforeEach(func() {
 				// Setup second PVC to use in this context
 				tests.CreateHostPathPv(tests.CustomHostPath, tests.HostPathCustom)
@@ -299,11 +300,66 @@ var _ = Describe("Storage", func() {
 						Expect(err).ToNot(HaveOccurred())
 					}
 
+					startedVMI, err := virtClient.VirtualMachineInstance(tests.NamespaceTestDefault).Get(vmi.ObjectMeta.Name, &metav1.GetOptions{})
+					fmt.Printf("TEST1 %v", startedVMI.Spec.Volumes[0].HostDisk)
+
 					err = virtClient.VirtualMachineInstance(vmi.Namespace).Delete(vmi.Name, &metav1.DeleteOptions{})
 					Expect(err).To(BeNil())
 
 					tests.WaitForVirtualMachineToDisappearWithTimeout(obj, 120)
 				}
+			})
+		})
+
+		Context("With a HostDisk with 'DiskExistsOrCreate' type", func() {
+			It("should create a writeable disk.img and start vm", func() {
+				By("starting VirtualMachineInstance")
+				vmi := tests.NewRandomVMIWithHostDisk(v1.HostDiskExistsOrCreate)
+				RunVMIAndExpectLaunch(vmi, false, 10)
+				//{{0 0} {<nil>} 0 DecimalSI}
+				//{{0 0} {<nil>}}
+
+				//check quick example with specifying this VolumeSource
+				By("checking if disk.img has been created with requested size")
+				vmiPod := tests.GetRunningPodByLabel(vmi.Name, v1.DomainLabel, tests.NamespaceTestDefault)
+				output, err := tests.ExecuteCommandOnPod(
+					virtClient,
+					vmiPod,
+					vmiPod.Spec.Containers[0].Name,
+					[]string{"find", "/data", "-name", "disk.img", "-size", "1G"},
+				)
+				Expect(strings.Contains(output, "/data/disk.img")).To(BeTrue())
+
+				err = virtClient.VirtualMachineInstance(vmi.Namespace).Delete(vmi.Name, &metav1.DeleteOptions{})
+				Expect(err).To(BeNil())
+
+				tests.WaitForVirtualMachineToDisappearWithTimeout(vmi, 120)
+			})
+		})
+
+		Context("With a HostDisk with 'Disk' type", func() {
+			It("should create a writeable disk.img and start vm", func() {
+				By("starting VirtualMachineInstance")
+				vmi := tests.NewRandomVMIWithHostDisk(v1.HostDiskExistsOrCreate)
+				RunVMIAndExpectLaunch(vmi, false, 10)
+				//{{0 0} {<nil>} 0 DecimalSI}
+				//{{0 0} {<nil>}}
+
+				//check quick example with specifying this VolumeSource
+				By("checking if disk.img has been created with requested size")
+				vmiPod := tests.GetRunningPodByLabel(vmi.Name, v1.DomainLabel, tests.NamespaceTestDefault)
+				output, err := tests.ExecuteCommandOnPod(
+					virtClient,
+					vmiPod,
+					vmiPod.Spec.Containers[0].Name,
+					[]string{"find", "/data", "-name", "disk.img", "-size", "1G"},
+				)
+				Expect(strings.Contains(output, "/data/disk.img")).To(BeTrue())
+
+				err = virtClient.VirtualMachineInstance(vmi.Namespace).Delete(vmi.Name, &metav1.DeleteOptions{})
+				Expect(err).To(BeNil())
+
+				tests.WaitForVirtualMachineToDisappearWithTimeout(vmi, 120)
 			})
 		})
 	})
