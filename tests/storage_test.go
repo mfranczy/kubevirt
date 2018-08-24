@@ -22,6 +22,7 @@ package tests_test
 import (
 	"flag"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -331,6 +332,72 @@ var _ = Describe("Storage", func() {
 			},
 				table.Entry("with 'DiskExistsOrCreate` type", v1.HostDiskExistsOrCreate),
 				table.Entry("with 'DiskExists` type", v1.HostDiskExists),
+			)
+		})
+
+		Context("With multiple empty PVCs", func() {
+
+			BeforeEach(func() {
+				// Setup second PVC to use in this context
+				tests.CreateHostPathPv("empty-pvc", "/tmp/hostImages/empty-pvc")
+				tests.CreatePVC("empty-pvc", "1Gi")
+			}, 120)
+
+			AfterEach(func() {
+				tests.DeletePVC("empty-pvc")
+				tests.DeletePV("empty-pvc")
+			}, 120)
+
+			It("Should create disk.img", func() {
+				By("starting VirtualMachineInstance")
+				vmi := tests.NewRandomVMIWithPVC("disk-empty-pvc")
+				RunVMIAndExpectLaunch(vmi, false, 10)
+
+				//data, err := virtClient.CoreV1().PersistentVolumeClaims(vmi.Namespace).List(metav1.ListOptions{})
+				//Expect(err).To(BeNil())
+				//fmt.Printf("DATA %v", data)
+
+				By("checking if disk.img exists")
+				vmiPod := tests.GetRunningPodByVirtualMachineInstance(vmi, tests.NamespaceTestDefault)
+				output, _ := tests.ExecuteCommandOnPod(
+					virtClient,
+					vmiPod,
+					vmiPod.Spec.Containers[0].Name,
+					[]string{"find", "/var/run/kubevirt-private/vmi-disks/disk0/", "-name", "disk.img", "-size", "1G"},
+				)
+				Expect(strings.Contains(output, "disk.img")).To(BeTrue())
+
+			})
+
+		})
+
+		FContext("With multiple empty PVCs", func() {
+			table.DescribeTable("should create a disk.img within empty PVC", func(pvcName string, pvcSize string) {
+				By("Creating an empty PVC")
+				tests.CreateHostPathPv(pvcName, filepath.Join(tests.HostPathBase, pvcName))
+				tests.CreatePVC(pvcName, pvcSize)
+
+				By("starting VirtualMachineInstance with an empty PVC attached")
+				vmi := tests.NewRandomVMIWithPVC("disk-" + pvcName)
+				RunVMIAndExpectLaunch(vmi, false, 10)
+
+				By("Checking if a disk.img has been initialized")
+				vmiPod := tests.GetRunningPodByVirtualMachineInstance(vmi, tests.NamespaceTestDefault)
+				output, _ := tests.ExecuteCommandOnPod(
+					virtClient,
+					vmiPod,
+					vmiPod.Spec.Containers[0].Name,
+					[]string{"find", "/var/run/kubevirt-private/vmi-disks/disk0/", "-name", "disk.img", "-size", pvcSize},
+				)
+				Expect(strings.Contains(output, "disk.img")).To(BeTrue())
+
+				// clean
+				tests.DeletePVC(pvcName)
+				tests.DeletePV(pvcName)
+			},
+				table.Entry("With an empty PVC named empty-pvc1", "empty-pvc1", "1G"),
+				//table.Entry("With an empty PVC named empty-pvc2", "empty-pvc2", "2G"),
+				//table.Entry("With an empty PVC named empty-pvc3", "empty-pvc3", "3G"),
 			)
 		})
 	})

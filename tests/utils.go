@@ -134,8 +134,9 @@ const (
 )
 
 const (
-	HostPathAlpine = "/tmp/hostImages/alpine"
-	HostPathCustom = "/tmp/hostImages/custom"
+	HostPathBase   = "/tmp/hostImages/"
+	HostPathAlpine = HostPathBase + "alpine"
+	HostPathCustom = HostPathBase + "custom"
 )
 
 const (
@@ -416,19 +417,21 @@ func newPVC(os string, size string) *k8sv1.PersistentVolumeClaim {
 	}
 }
 
-func CreateHostPathPv(os string, hostPath string) {
+func CreateHostPathPv(osName string, hostPath string) {
 	virtCli, err := kubecli.GetKubevirtClient()
 	PanicOnError(err)
 
 	quantity, err := resource.ParseQuantity("1Gi")
 	PanicOnError(err)
 
-	name := fmt.Sprintf("%s-disk-for-tests", os)
+	hostPathType := k8sv1.HostPathDirectoryOrCreate
+
+	name := fmt.Sprintf("%s-disk-for-tests", osName)
 	pv := &k8sv1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 			Labels: map[string]string{
-				"kubevirt.io/test": os,
+				"kubevirt.io/test": osName,
 			},
 		},
 		Spec: k8sv1.PersistentVolumeSpec{
@@ -438,8 +441,12 @@ func CreateHostPathPv(os string, hostPath string) {
 			},
 			PersistentVolumeReclaimPolicy: k8sv1.PersistentVolumeReclaimRetain,
 			PersistentVolumeSource: k8sv1.PersistentVolumeSource{
-				Local: &k8sv1.LocalVolumeSource{
+				/*Local: &k8sv1.LocalVolumeSource{
 					Path: hostPath,
+				},*/
+				HostPath: &k8sv1.HostPathVolumeSource{
+					Path: hostPath,
+					Type: &hostPathType,
 				},
 			},
 			StorageClassName: LocalStorageClass,
