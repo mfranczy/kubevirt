@@ -54,7 +54,7 @@ type requestType struct {
 var CONSOLE = requestType{socketName: "serial0"}
 var VNC = requestType{socketName: "vnc"}
 
-func (app *SubresourceAPIApp) requestHandler(request *restful.Request, response *restful.Response, requestType requestType) {
+func (app *SubresourceAPIApp) streamRequestHandler(request *restful.Request, response *restful.Response, requestType requestType) {
 
 	vmiName := request.PathParameter("name")
 	namespace := request.PathParameter("namespace")
@@ -141,11 +141,26 @@ func (app *SubresourceAPIApp) requestHandler(request *restful.Request, response 
 }
 
 func (app *SubresourceAPIApp) VNCRequestHandler(request *restful.Request, response *restful.Response) {
-	app.requestHandler(request, response, VNC)
+	app.streamRequestHandler(request, response, VNC)
 }
 
 func (app *SubresourceAPIApp) ConsoleRequestHandler(request *restful.Request, response *restful.Response) {
-	app.requestHandler(request, response, CONSOLE)
+	app.streamRequestHandler(request, response, CONSOLE)
+}
+
+func (app *SubresourceAPIApp) RestartVMIRequestHandler(request *restful.Request, response *restful.Response) {
+	vmiName := request.PathParameter("name")
+	namespace := request.PathParameter("namespace")
+	err := app.VirtCli.VirtualMachineInstance(namespace).Delete(vmiName, &k8smetav1.DeleteOptions{})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			response.WriteError(http.StatusNotFound, err)
+		} else {
+			response.WriteError(http.StatusInternalServerError, err)
+		}
+		return
+	}
+	response.WriteHeader(http.StatusOK)
 }
 
 func (app *SubresourceAPIApp) findPod(namespace string, uid string) (string, error) {

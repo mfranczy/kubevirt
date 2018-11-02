@@ -138,6 +138,7 @@ rules:
       - get
       - list
       - watch
+      - delete
   - apiGroups:
       - ''
     resources:
@@ -280,6 +281,7 @@ rules:
     resources:
       - virtualmachineinstances/console
       - virtualmachineinstances/vnc
+      - virtualmachineinstances/restart
     verbs:
       - get
   - apiGroups:
@@ -312,6 +314,7 @@ rules:
     resources:
       - virtualmachineinstances/console
       - virtualmachineinstances/vnc
+      - virtualmachineinstances/restart
     verbs:
       - get
   - apiGroups:

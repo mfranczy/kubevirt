@@ -740,6 +740,16 @@ func (_mr *_MockVirtualMachineInstanceInterfaceRecorder) VNC(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "VNC", arg0)
 }
 
+func (_m *MockVirtualMachineInstanceInterface) Restart(name string) error {
+	ret := _m.ctrl.Call(_m, "Restart", name)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockVirtualMachineInstanceInterfaceRecorder) Restart(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Restart", arg0)
+}
+
 // Mock of ReplicaSetInterface interface
 type MockReplicaSetInterface struct {
 	ctrl     *gomock.Controller

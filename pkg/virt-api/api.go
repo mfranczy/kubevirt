@@ -217,6 +217,12 @@ func (app *virtAPIApp) composeSubresources() {
 		Operation("vnc").
 		Doc("Open a websocket connection to connect to VNC on the specified VirtualMachineInstance."))
 
+	subws.Route(subws.GET(rest.ResourcePath(subresourcesvmiGVR) + rest.SubResourcePath("restart")).
+		To(subresourceApp.RestartVMIRequestHandler).
+		Param(rest.NamespaceParam(subws)).Param(rest.NameParam(subws)).
+		Operation("restart").
+		Doc("Restart a VMI"))
+
 	subws.Route(subws.GET(rest.ResourcePath(subresourcesvmiGVR) + rest.SubResourcePath("test")).
 		To(func(request *restful.Request, response *restful.Response) {
 			response.WriteHeader(http.StatusOK)
