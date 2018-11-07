@@ -132,6 +132,7 @@ rules:
   - apiGroups:
       - kubevirt.io
     resources:
+      - virtualmachines
       - virtualmachineinstances
       - virtualmachineinstancemigrations
     verbs:
@@ -281,7 +282,7 @@ rules:
     resources:
       - virtualmachineinstances/console
       - virtualmachineinstances/vnc
-      - virtualmachineinstances/restart
+      - virtualmachines/restart
     verbs:
       - get
   - apiGroups:
@@ -314,7 +315,7 @@ rules:
     resources:
       - virtualmachineinstances/console
       - virtualmachineinstances/vnc
-      - virtualmachineinstances/restart
+      - virtualmachines/restart
     verbs:
       - get
   - apiGroups:

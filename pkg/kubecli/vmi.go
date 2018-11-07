@@ -40,7 +40,6 @@ import (
 
 const (
 	WebsocketMessageBufferSize = 10240
-	subresourceURL             = "/apis/subresources.kubevirt.io/v1alpha2/namespaces/%s/virtualmachineinstances/%s/%s"
 )
 
 func (k *kubevirt) VirtualMachineInstance(namespace string) VirtualMachineInstanceInterface {
@@ -207,7 +206,7 @@ func RequestFromConfig(config *rest.Config, vmi string, namespace string, resour
 		return nil, fmt.Errorf("Unsupported Protocol %s", u.Scheme)
 	}
 
-	u.Path = fmt.Sprintf(subresourceURL, namespace, vmi, resource)
+	u.Path = fmt.Sprintf("/apis/subresources.kubevirt.io/v1alpha2/namespaces/%s/virtualmachineinstances/%s/%s", namespace, vmi, resource)
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    u,
@@ -438,9 +437,4 @@ func (v *vmis) Patch(name string, pt types.PatchType, data []byte, subresources 
 		Do().
 		Into(result)
 	return
-}
-
-func (v *vmis) Restart(name string) error {
-	uri := fmt.Sprintf(subresourceURL, v.namespace, name, "restart")
-	return v.restClient.Get().RequestURI(uri).Do().Error()
 }

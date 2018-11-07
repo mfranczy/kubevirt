@@ -145,7 +145,7 @@ func (o *Command) Run(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("Error: VirtualMachineInstance '%s' is already %s", vmiName, stateMsg)
 		}
 	case COMMAND_RESTART:
-		err = virtClient.VirtualMachineInstance(namespace).Restart(vmiName)
+		err = virtClient.VirtualMachine(namespace).Restart(vmiName)
 		if err != nil {
 			return fmt.Errorf("Error restarting VirtualMachine %v", err)
 		}

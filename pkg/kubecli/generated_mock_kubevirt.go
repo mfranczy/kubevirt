@@ -740,16 +740,6 @@ func (_mr *_MockVirtualMachineInstanceInterfaceRecorder) VNC(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "VNC", arg0)
 }
 
-func (_m *MockVirtualMachineInstanceInterface) Restart(name string) error {
-	ret := _m.ctrl.Call(_m, "Restart", name)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockVirtualMachineInstanceInterfaceRecorder) Restart(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Restart", arg0)
-}
-
 // Mock of ReplicaSetInterface interface
 type MockReplicaSetInterface struct {
 	ctrl     *gomock.Controller
@@ -1005,6 +995,16 @@ func (_m *MockVirtualMachineInterface) Patch(name string, pt types.PatchType, da
 func (_mr *_MockVirtualMachineInterfaceRecorder) Patch(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Patch", _s...)
+}
+
+func (_m *MockVirtualMachineInterface) Restart(name string) error {
+	ret := _m.ctrl.Call(_m, "Restart", name)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockVirtualMachineInterfaceRecorder) Restart(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Restart", arg0)
 }
 
 // Mock of VirtualMachineInstanceMigrationInterface interface

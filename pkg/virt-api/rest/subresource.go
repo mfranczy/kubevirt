@@ -148,10 +148,18 @@ func (app *SubresourceAPIApp) ConsoleRequestHandler(request *restful.Request, re
 	app.streamRequestHandler(request, response, CONSOLE)
 }
 
-func (app *SubresourceAPIApp) RestartVMIRequestHandler(request *restful.Request, response *restful.Response) {
-	vmiName := request.PathParameter("name")
+func (app *SubresourceAPIApp) RestartVMRequestHandler(request *restful.Request, response *restful.Response) {
+	name := request.PathParameter("name")
 	namespace := request.PathParameter("namespace")
-	err := app.VirtCli.VirtualMachineInstance(namespace).Delete(vmiName, &k8smetav1.DeleteOptions{})
+	log.Log.Info("STARTING HANDLING REQUESTS")
+	// check status
+	vm, code, err := app.fetchVirtualMachine(name, namespace)
+	if err != nil {
+		response.WriteError(code, err)
+		return
+	}
+
+	err = app.VirtCli.VirtualMachineInstance(namespace).Delete(name, &k8smetav1.DeleteOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			response.WriteError(http.StatusNotFound, err)
@@ -180,6 +188,18 @@ func (app *SubresourceAPIApp) findPod(namespace string, uid string) (string, err
 		return "", goerror.New("connection failed. No VirtualMachineInstance pod is running")
 	}
 	return podList.Items[0].ObjectMeta.Name, nil
+}
+
+func (app *SubresourceAPIApp) fetchVirtualMachine(name string, namespace string) (*v1.VirtualMachine, int, error) {
+
+	vm, err := app.VirtCli.VirtualMachine(namespace).Get(name, &k8smetav1.GetOptions{})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, http.StatusNotFound, goerror.New(fmt.Sprintf("VirtualMachine %s in namespace %s not found.", name, namespace))
+		}
+		return nil, http.StatusInternalServerError, err
+	}
+	return vm, http.StatusOK, nil
 }
 
 func (app *SubresourceAPIApp) fetchVirtualMachineInstance(name string, namespace string) (*v1.VirtualMachineInstance, int, error) {
