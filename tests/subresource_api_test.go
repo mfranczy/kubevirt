@@ -73,6 +73,25 @@ var _ = Describe("Subresource Api", func() {
 			}, 15)
 		})
 	})
+
+	FDescribe("VirtualMachine subresource", func() {
+
+		Context("with restart endpoint", func() {
+			It("should restart a VM", func() {
+				// start a vm
+				// start its vmi
+				// restart its vmi
+			})
+
+			It("should return an error when VM has not been found", func() {
+				//
+			})
+
+			It("should return an error when VM is not running", func() {
+
+			})
+		})
+	})
 })
 
 func testClientJob(virtCli kubecli.KubevirtClient, withServiceAccount bool, resource string) {
