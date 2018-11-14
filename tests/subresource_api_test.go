@@ -78,6 +78,10 @@ var _ = Describe("Subresource Api", func() {
 
 		Context("with restart endpoint", func() {
 			It("should restart a VM", func() {
+				vmi := tests.NewRandomVMI()
+				vm := tests.NewRandomVirtualMachine(vmi, false)
+				tests.StartVirtualMachine(vm)
+
 				// start a vm
 				// start its vmi
 				// restart its vmi
