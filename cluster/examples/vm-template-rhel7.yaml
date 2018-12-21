@@ -56,6 +56,7 @@ objects:
   spec:
     accessModes:
     - ReadWriteOnce
+    dataSource: null
     resources:
       requests:
         storage: 10Gi
