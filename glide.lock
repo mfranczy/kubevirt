@@ -1,5 +1,5 @@
-hash: 184c8da120e33fab1361a02ed00049b67addd1dabf73bd9e25026a5953470855
-updated: 2018-12-05T20:19:20.663296765Z
+hash: 2c9f759801ac3e520b59b6c4c638c4b46b7515ef8b2c9504ca2a50e73e43e5f0
+updated: 2018-12-21T14:23:58.0568436Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -9,16 +9,21 @@ imports:
 - name: github.com/asaskevich/govalidator
   version: f9ffefc3facfbe0caee3fea233cbb6e8208f4541
 - name: github.com/Azure/go-autorest
-  version: 1ff28809256a84bb6966640ff3d0371af82ccba4
+  version: bca49d5b51a50dc5bb17bbf6204c711c6dbded06
   subpackages:
   - autorest
   - autorest/adal
   - autorest/azure
   - autorest/date
+  - version
 - name: github.com/beorn7/perks
   version: 3a771d992973f24aa725d07868b467d1ddfceafb
   subpackages:
   - quantile
+- name: github.com/coreos/go-iptables
+  version: 47f22b0dd3355c0ba570ba12b0b8a36bf214c04b
+  subpackages:
+  - iptables
 - name: github.com/davecgh/go-spew
   version: 782f4967f2dc4564575ca782fe2d04090b5faca8
   subpackages:
@@ -92,7 +97,7 @@ imports:
   subpackages:
   - lru
 - name: github.com/golang/mock
-  version: 5f3a40bc29aa3f8115e37b1ae65fe38747f39816
+  version: 7c854015c5d42f3fefb82fd84de21c1183487a8b
   subpackages:
   - gomock
 - name: github.com/golang/protobuf
@@ -106,7 +111,7 @@ imports:
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/goexpect
-  version: b18097df138928108f35d9eb94955cc12954c0d5
+  version: 31a95e9b7189161fd216fb1f32b74eebbc3c982f
 - name: github.com/google/gofuzz
   version: 44d81051d367757e1c7c6a5a86423ece9afcf63c
 - name: github.com/google/goterm
@@ -146,11 +151,23 @@ imports:
   - watch
   - winfile
 - name: github.com/imdario/mergo
-  version: 6633656539c1639d9d78127b7d47c622b5d7b6dc
+  version: 9316a62528ac99aaecb4e47eadd6dc8aa6533d58
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/json-iterator/go
   version: f2b4162afba35581b6d4a50d3b8f34e33c144682
+- name: github.com/k8snetworkplumbingwg/network-attachment-definition-client
+  version: 379ff533bf290f5bd6a5dfed0ca382cc3c7cc8d2
+  repo: https://github.com/booxter/network-attachment-definition-client.git
+  vcs: git
+  subpackages:
+  - pkg/apis/k8s.cni.cncf.io
+  - pkg/apis/k8s.cni.cncf.io/v1
+  - pkg/client/clientset/versioned
+  - pkg/client/clientset/versioned/fake
+  - pkg/client/clientset/versioned/scheme
+  - pkg/client/clientset/versioned/typed/k8s.cni.cncf.io/v1
+  - pkg/client/clientset/versioned/typed/k8s.cni.cncf.io/v1/fake
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/krolaw/dhcp4
@@ -166,9 +183,9 @@ imports:
   - jlexer
   - jwriter
 - name: github.com/mattn/go-runewidth
-  version: c88d7e5f2e24de48a200a2655ac8a0910be9a0f7
+  version: 703b5e6b11ae25aeb2af9ebb5d5fdf8fa2575211
 - name: github.com/matttproud/golang_protobuf_extensions
-  version: fc2b8d3a73c4867e51861bbdd5ae3c1f0869dd6a
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
   subpackages:
   - pbutil
 - name: github.com/mitchellh/mapstructure
@@ -203,6 +220,8 @@ imports:
   subpackages:
   - format
   - ghttp
+  - gstruct
+  - gstruct/errors
   - internal/assertion
   - internal/asyncassertion
   - internal/oraclematcher
@@ -255,17 +274,18 @@ imports:
 - name: github.com/vishvananda/netns
   version: 13995c7128ccc8e51e9a6bd2b551020a27180abd
 - name: golang.org/x/crypto
-  version: 49796115aa4b964c318aad4f3084fdb41e9aa067
+  version: de0752318171da717af4ce24d0a2e8626afaeb11
   subpackages:
   - curve25519
   - ed25519
   - ed25519/internal/edwards25519
   - internal/chacha20
+  - internal/subtle
   - poly1305
   - ssh
   - ssh/terminal
 - name: golang.org/x/net
-  version: 1c05540f6879653db88113bc4a2b70aec4bd491f
+  version: 0ed95abb35c445290478a5348a7b38bb154135fd
   subpackages:
   - bpf
   - context
@@ -324,7 +344,7 @@ imports:
   subpackages:
   - rate
 - name: google.golang.org/appengine
-  version: a37df1387b4521194676d88c79230c613610d5f4
+  version: e9657d882bb81064595ca3b56cbe2546bbabf7b1
   subpackages:
   - internal
   - internal/app_identity
@@ -367,19 +387,19 @@ imports:
   - tap
   - transport
 - name: gopkg.in/cheggaaa/pb.v1
-  version: 007b75a044e968336a69a6c0c617251ab62ac14c
+  version: 1cc5bbe20449079337944d56292c7383510c534c
 - name: gopkg.in/fsnotify/fsnotify.v1
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 - name: gopkg.in/ini.v1
-  version: ffaaebdac6e54ce73b4e196b8406920921304ec9
+  version: f55231ca73a76c1d61eb05fe0d64a1ccebf93cba
 - name: gopkg.in/tomb.v1
   version: c131134a1947e9afd9cecfe11f4c6dff0732ae58
 - name: gopkg.in/yaml.v2
   version: 670d4cfef0544295bc27a114dbac37980d83185a
 - name: k8s.io/api
-  version: 2d6f90ab1293a1fb871cf149423ebb72aa7423aa
+  version: 6db15a15d2d3874a6c3ddb2140ac9f3bc7058428
   subpackages:
   - admission/v1beta1
   - admissionregistration/v1alpha1
@@ -393,10 +413,12 @@ imports:
   - authorization/v1beta1
   - autoscaling/v1
   - autoscaling/v2beta1
+  - autoscaling/v2beta2
   - batch/v1
   - batch/v1beta1
   - batch/v2alpha1
   - certificates/v1beta1
+  - coordination/v1beta1
   - core/v1
   - events/v1beta1
   - extensions/v1beta1
@@ -413,15 +435,12 @@ imports:
   - storage/v1alpha1
   - storage/v1beta1
 - name: k8s.io/apiextensions-apiserver
-  version: 408db4a50408e2149acbd657bceb2480c13cb0a4
+  version: 853f76028711219c2fc251fd5184f23fd44a7aa0
   subpackages:
   - pkg/apis/apiextensions
   - pkg/apis/apiextensions/v1beta1
-  - pkg/client/clientset/clientset
-  - pkg/client/clientset/clientset/scheme
-  - pkg/client/clientset/clientset/typed/apiextensions/v1beta1
 - name: k8s.io/apimachinery
-  version: 103fd098999dc9c0c88536f5c9ad2e5da39373ae
+  version: 49ce2735e5074ffc3f8190c8406cf51a96302dad
   subpackages:
   - pkg/api/errors
   - pkg/api/meta
@@ -454,6 +473,7 @@ imports:
   - pkg/util/intstr
   - pkg/util/json
   - pkg/util/mergepatch
+  - pkg/util/naming
   - pkg/util/net
   - pkg/util/rand
   - pkg/util/remotecommand
@@ -471,7 +491,7 @@ imports:
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/client-go
-  version: 1f13a808da65775f22cbf47862c4e5898d8f4ca1
+  version: 5e6a3d4e34f694e895b13ae728111e726a5b69df
   subpackages:
   - discovery
   - discovery/fake
@@ -500,6 +520,8 @@ imports:
   - kubernetes/typed/autoscaling/v1/fake
   - kubernetes/typed/autoscaling/v2beta1
   - kubernetes/typed/autoscaling/v2beta1/fake
+  - kubernetes/typed/autoscaling/v2beta2
+  - kubernetes/typed/autoscaling/v2beta2/fake
   - kubernetes/typed/batch/v1
   - kubernetes/typed/batch/v1/fake
   - kubernetes/typed/batch/v1beta1
@@ -508,6 +530,8 @@ imports:
   - kubernetes/typed/batch/v2alpha1/fake
   - kubernetes/typed/certificates/v1beta1
   - kubernetes/typed/certificates/v1beta1/fake
+  - kubernetes/typed/coordination/v1beta1
+  - kubernetes/typed/coordination/v1beta1/fake
   - kubernetes/typed/core/v1
   - kubernetes/typed/core/v1/fake
   - kubernetes/typed/events/v1beta1
@@ -564,6 +588,7 @@ imports:
   - tools/record
   - tools/reference
   - tools/remotecommand
+  - tools/watch
   - transport
   - transport/spdy
   - util/buffer
@@ -580,7 +605,7 @@ imports:
   - util/retry
   - util/workqueue
 - name: k8s.io/kube-aggregator
-  version: 8e086f01c3c3620eca0eb45024cf7eafc0c54ba1
+  version: e95ebe3de8a24c3da1ad7606ca5a2444a64f4c82
   subpackages:
   - pkg/apis/apiregistration
   - pkg/apis/apiregistration/v1
@@ -590,7 +615,7 @@ imports:
   - pkg/client/clientset_generated/clientset/typed/apiregistration/v1
   - pkg/client/clientset_generated/clientset/typed/apiregistration/v1beta1
 - name: k8s.io/kube-openapi
-  version: 91cfa479c814065e420cee7ed227db0f63a5854e
+  version: 0cf8f7e6ed1d2e3d47d02e3b6e559369af24d803
   subpackages:
   - pkg/common
   - pkg/util/proto
@@ -624,8 +649,6 @@ imports:
   - pkg/ginkgo-reporters
   - pkg/polarion-xml
 testImports:
-- name: github.com/coreos/go-iptables
-  version: 47f22b0dd3355c0ba570ba12b0b8a36bf214c04b
 - name: github.com/elazarl/goproxy
   version: 07b16b6e30fcac0ad8c0435548e743bcf2ca7e92
 - name: github.com/facebookgo/structtag
