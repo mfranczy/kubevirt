@@ -20,6 +20,7 @@
 package watch
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"sync"
@@ -100,20 +101,20 @@ type VMIReplicaSet struct {
 	burstReplicas uint
 }
 
-func (c *VMIReplicaSet) Run(threadiness int, stopCh chan struct{}) {
+func (c *VMIReplicaSet) Run(ctx context.Context, threadiness int) {
 	defer controller.HandlePanic()
 	defer c.Queue.ShutDown()
 	log.Log.Info("Starting VirtualMachineInstanceReplicaSet controller.")
 
 	// Wait for cache sync before we start the controller
-	cache.WaitForCacheSync(stopCh, c.vmiInformer.HasSynced, c.vmiRSInformer.HasSynced)
+	cache.WaitForCacheSync(ctx.Done(), c.vmiInformer.HasSynced, c.vmiRSInformer.HasSynced)
 
 	// Start the actual work
 	for i := 0; i < threadiness; i++ {
-		go wait.Until(c.runWorker, time.Second, stopCh)
+		go wait.Until(c.runWorker, time.Second, ctx.Done())
 	}
 
-	<-stopCh
+	<-ctx.Done()
 	log.Log.Info("Stopping VirtualMachineInstanceReplicaSet controller.")
 }
 

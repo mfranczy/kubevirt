@@ -1,6 +1,7 @@
 package watch
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -103,20 +104,20 @@ func (c *NodeController) updateVirtualMachine(old, curr interface{}) {
 }
 
 // Run runs the passed in NodeController.
-func (c *NodeController) Run(threadiness int, stopCh chan struct{}) {
+func (c *NodeController) Run(ctx context.Context, threadiness int) {
 	defer controller.HandlePanic()
 	defer c.Queue.ShutDown()
 	log.Log.Info("Starting node controller.")
 
 	// Wait for cache sync before we start the node controller
-	cache.WaitForCacheSync(stopCh, c.nodeInformer.HasSynced, c.vmiInformer.HasSynced)
+	cache.WaitForCacheSync(ctx.Done(), c.nodeInformer.HasSynced, c.vmiInformer.HasSynced)
 
 	// Start the actual work
 	for i := 0; i < threadiness; i++ {
-		go wait.Until(c.runWorker, time.Second, stopCh)
+		go wait.Until(c.runWorker, time.Second, ctx.Done())
 	}
 
-	<-stopCh
+	<-ctx.Done()
 	log.Log.Info("Stopping node controller.")
 }
 

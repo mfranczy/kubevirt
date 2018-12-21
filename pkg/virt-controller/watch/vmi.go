@@ -20,6 +20,7 @@
 package watch
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"time"
@@ -161,20 +162,20 @@ type VMIController struct {
 	dataVolumeInformer cache.SharedIndexInformer
 }
 
-func (c *VMIController) Run(threadiness int, stopCh chan struct{}) {
+func (c *VMIController) Run(ctx context.Context, threadiness int) {
 	defer controller.HandlePanic()
 	defer c.Queue.ShutDown()
 	log.Log.Info("Starting vmi controller.")
 
 	// Wait for cache sync before we start the pod controller
-	cache.WaitForCacheSync(stopCh, c.vmiInformer.HasSynced, c.podInformer.HasSynced, c.configMapInformer.HasSynced, c.dataVolumeInformer.HasSynced)
+	cache.WaitForCacheSync(ctx.Done(), c.vmiInformer.HasSynced, c.podInformer.HasSynced, c.configMapInformer.HasSynced, c.dataVolumeInformer.HasSynced)
 
 	// Start the actual work
 	for i := 0; i < threadiness; i++ {
-		go wait.Until(c.runWorker, time.Second, stopCh)
+		go wait.Until(c.runWorker, time.Second, ctx.Done())
 	}
 
-	<-stopCh
+	<-ctx.Done()
 	log.Log.Info("Stopping vmi controller.")
 }
 

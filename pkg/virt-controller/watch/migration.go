@@ -20,6 +20,7 @@
 package watch
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"time"
@@ -90,20 +91,20 @@ func NewMigrationController(templateService services.TemplateService,
 	return c
 }
 
-func (c *MigrationController) Run(threadiness int, stopCh chan struct{}) {
+func (c *MigrationController) Run(ctx context.Context, threadiness int) {
 	defer controller.HandlePanic()
 	defer c.Queue.ShutDown()
 	log.Log.Info("Starting migration controller.")
 
 	// Wait for cache sync before we start the pod controller
-	cache.WaitForCacheSync(stopCh, c.vmiInformer.HasSynced, c.podInformer.HasSynced, c.migrationInformer.HasSynced)
+	cache.WaitForCacheSync(ctx.Done(), c.vmiInformer.HasSynced, c.podInformer.HasSynced, c.migrationInformer.HasSynced)
 
 	// Start the actual work
 	for i := 0; i < threadiness; i++ {
-		go wait.Until(c.runWorker, time.Second, stopCh)
+		go wait.Until(c.runWorker, time.Second, ctx.Done())
 	}
 
-	<-stopCh
+	<-ctx.Done()
 	log.Log.Info("Stopping migration controller.")
 }
 
