@@ -2126,7 +2126,7 @@ func LoggedInFedoraExpecter(vmi *v1.VirtualMachineInstance) (expect.Expecter, er
 
 type VMIExpecterFactory func(*v1.VirtualMachineInstance) (expect.Expecter, error)
 
-func NewVirtctlCommand(args ...string) *cobra.Command {
+func NewVirtctlCommand(buffer io.Writer, args ...string) *cobra.Command {
 	commandline := []string{}
 	master := flag.Lookup("master").Value
 	if master != nil && master.String() != "" {
@@ -2136,14 +2136,14 @@ func NewVirtctlCommand(args ...string) *cobra.Command {
 	if kubeconfig != nil && kubeconfig.String() != "" {
 		commandline = append(commandline, "--kubeconfig", kubeconfig.String())
 	}
-	cmd := virtctl.NewVirtctlCommand()
+	cmd := virtctl.NewVirtctlCommand(buffer)
 	cmd.SetArgs(append(commandline, args...))
 	return cmd
 }
 
-func NewRepeatableVirtctlCommand(args ...string) func() error {
+func NewRepeatableVirtctlCommand(buffer io.Writer, args ...string) func() error {
 	return func() error {
-		cmd := NewVirtctlCommand(args...)
+		cmd := NewVirtctlCommand(buffer, args...)
 		return cmd.Execute()
 	}
 }

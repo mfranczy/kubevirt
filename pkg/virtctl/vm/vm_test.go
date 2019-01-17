@@ -41,8 +41,7 @@ var _ = Describe("VirtualMachine", func() {
 	Context("should patch VM", func() {
 		It("with spec:running:true", func() {
 			buffer := &bytes.Buffer{}
-			cmd := tests.NewVirtctlCommand("start", vmName)
-			cmd.SetOutput(buffer)
+			cmd := tests.NewVirtctlCommand(buffer, "start", vmName)
 			Expect(cmd.Execute()).To(BeNil())
 			Expect(buffer.String()).To(Equal(fmt.Sprintf("VM %s was scheduled to start\n", vmName)))
 		})
@@ -50,15 +49,15 @@ var _ = Describe("VirtualMachine", func() {
 		It("with spec:running:false", func() {
 			vm.Spec.Running = true
 			buffer := &bytes.Buffer{}
-			cmd := tests.NewVirtctlCommand("stop", vmName)
-			cmd.SetOutput(buffer)
+			cmd := tests.NewVirtctlCommand(buffer, "stop", vmName)
 			Expect(cmd.Execute()).To(BeNil())
 			Expect(buffer.String()).To(Equal(fmt.Sprintf("VM %s was scheduled to stop\n", vmName)))
 		})
 
 		It("with spec:running:false when it's false already ", func() {
 			vm.Spec.Running = false
-			cmd := tests.NewRepeatableVirtctlCommand("stop", vmName)
+			buffer := &bytes.Buffer{}
+			cmd := tests.NewRepeatableVirtctlCommand(buffer, "stop", vmName)
 			Expect(cmd()).NotTo(BeNil())
 		})
 
@@ -67,16 +66,14 @@ var _ = Describe("VirtualMachine", func() {
 	Context("with restart VM cmd", func() {
 		It("should restart vm", func() {
 			buffer := &bytes.Buffer{}
-			cmd := tests.NewVirtctlCommand("restart", vmName)
-			cmd.SetOutput(buffer)
+			cmd := tests.NewVirtctlCommand(buffer, "restart", vmName)
 			Expect(cmd.Execute()).To(BeNil())
 			Expect(buffer.String()).To(Equal(fmt.Sprintf("VM %s was scheduled to restart\n", vmName)))
 		})
 
 		It("should return an error", func() {
 			buffer := &bytes.Buffer{}
-			cmd := tests.NewVirtctlCommand("restart", unknownVM)
-			cmd.SetOutput(buffer)
+			cmd := tests.NewVirtctlCommand(buffer, "restart", unknownVM)
 			Expect(cmd.Execute()).To(Equal(errors.New("Error fetching VirtualMachine: unknown VM")))
 			Expect(buffer.String()).To(Equal(""))
 		})

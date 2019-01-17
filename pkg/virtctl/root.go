@@ -2,6 +2,7 @@ package virtctl
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -18,7 +19,7 @@ import (
 	"kubevirt.io/kubevirt/pkg/virtctl/vnc"
 )
 
-func NewVirtctlCommand() *cobra.Command {
+func NewVirtctlCommand(out io.Writer) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:           "virtctl",
 		Short:         "virtctl controls virtual machine related operations on your kubernetes cluster.",
@@ -39,14 +40,15 @@ func NewVirtctlCommand() *cobra.Command {
 	optionsCmd.SetUsageTemplate(templates.OptionsUsageTemplate())
 	//TODO: Add a ClientConfigFactory which allows substituting the KubeVirt client with a mock for unit testing
 	clientConfig := kubecli.DefaultClientConfig(rootCmd.PersistentFlags())
+	vmCmd := vm.GetCommands(clientConfig, out)
 	AddGlogFlags(rootCmd.PersistentFlags())
 	rootCmd.SetUsageTemplate(templates.MainUsageTemplate())
 	rootCmd.AddCommand(
 		console.NewCommand(clientConfig),
 		vnc.NewCommand(clientConfig),
-		vm.NewStartCommand(clientConfig),
-		vm.NewStopCommand(clientConfig),
-		vm.NewRestartCommand(clientConfig),
+		vmCmd.Start(),
+		vmCmd.Stop(),
+		vmCmd.Restart(),
 		expose.NewExposeCommand(clientConfig),
 		version.VersionCommand(clientConfig),
 		imageupload.NewImageUploadCommand(clientConfig),
@@ -57,7 +59,7 @@ func NewVirtctlCommand() *cobra.Command {
 
 func Execute() {
 	log.InitializeLogging("virtctl")
-	if err := NewVirtctlCommand().Execute(); err != nil {
+	if err := NewVirtctlCommand(os.Stdout).Execute(); err != nil {
 		fmt.Println(strings.TrimSpace(err.Error()))
 		os.Exit(1)
 	}

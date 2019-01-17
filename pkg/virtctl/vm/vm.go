@@ -21,6 +21,7 @@ package vm
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -38,58 +39,55 @@ const (
 	COMMAND_RESTART = "restart"
 )
 
-func NewStartCommand(clientConfig clientcmd.ClientConfig) *cobra.Command {
+type VMCommand struct {
+	clientConfig clientcmd.ClientConfig
+	out          io.Writer
+}
+
+func GetCommands(clientConfig clientcmd.ClientConfig, out io.Writer) *VMCommand {
+	return &VMCommand{out: out, clientConfig: clientConfig}
+}
+
+func (vmc *VMCommand) Start() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "start (VM)",
 		Short:   "Start a virtual machine.",
 		Example: usage(COMMAND_START),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c := Command{command: COMMAND_START, clientConfig: clientConfig}
-			return c.Run(cmd, args)
+			return vmc.Run(COMMAND_START, args)
 		},
 	}
 	cmd.SetUsageTemplate(templates.UsageTemplate())
 	return cmd
 }
 
-func NewStopCommand(clientConfig clientcmd.ClientConfig) *cobra.Command {
+func (vmc *VMCommand) Stop() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "stop (VM)",
 		Short:   "Stop a virtual machine.",
 		Example: usage(COMMAND_STOP),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c := Command{command: COMMAND_STOP, clientConfig: clientConfig}
-			return c.Run(cmd, args)
+			return vmc.Run(COMMAND_STOP, args)
 		},
 	}
 	cmd.SetUsageTemplate(templates.UsageTemplate())
 	return cmd
 }
 
-func NewRestartCommand(clientConfig clientcmd.ClientConfig) *cobra.Command {
+func (vmc *VMCommand) Restart() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "restart (VM)",
 		Short:   "Restart a virtual machine.",
 		Example: usage(COMMAND_RESTART),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c := Command{command: COMMAND_RESTART, clientConfig: clientConfig}
-			return c.Run(cmd, args)
+			return vmc.Run(COMMAND_RESTART, args)
 		},
 	}
 	cmd.SetUsageTemplate(templates.UsageTemplate())
 	return cmd
-}
-
-type Command struct {
-	clientConfig clientcmd.ClientConfig
-	command      string
-}
-
-func NewCommand(command string) *Command {
-	return &Command{command: command}
 }
 
 func usage(cmd string) string {
@@ -98,16 +96,16 @@ func usage(cmd string) string {
 	return usage
 }
 
-func (o *Command) Run(cmd *cobra.Command, args []string) error {
+func (vmc *VMCommand) Run(command string, args []string) error {
 
 	vmiName := args[0]
 
-	namespace, _, err := o.clientConfig.Namespace()
+	namespace, _, err := vmc.clientConfig.Namespace()
 	if err != nil {
 		return err
 	}
 
-	virtClient, err := kubecli.GetKubevirtClientFromClientConfig(o.clientConfig)
+	virtClient, err := kubecli.GetKubevirtClientFromClientConfig(vmc.clientConfig)
 	if err != nil {
 		return fmt.Errorf("Cannot obtain KubeVirt client: %v", err)
 	}
@@ -118,10 +116,10 @@ func (o *Command) Run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Error fetching VirtualMachine: %v", err)
 	}
 
-	switch o.command {
+	switch command {
 	case COMMAND_STOP, COMMAND_START:
 		running := false
-		if o.command == COMMAND_START {
+		if command == COMMAND_START {
 			running = true
 		}
 
@@ -149,6 +147,6 @@ func (o *Command) Run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	cmd.Printf("VM %s was scheduled to %s\n", vmiName, o.command)
+	fmt.Fprintf(vmc.out, "VM %s was scheduled to %s\n", vmiName, command)
 	return nil
 }
