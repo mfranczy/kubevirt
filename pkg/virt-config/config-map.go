@@ -45,6 +45,7 @@ const (
 	FeatureGatesKey        = "feature-gates"
 	emulatedMachinesEnvVar = "VIRT_EMULATED_MACHINES"
 	emulatedMachinesKey    = "emulated-machines"
+	machineTypeKey         = "machine-type"
 	useEmulationKey        = "debug.useEmulation"
 	imagePullPolicyKey     = "dev.imagePullPolicy"
 	migrationsConfigKey    = "migrations"
@@ -152,6 +153,7 @@ type Config struct {
 	UseEmulation    bool
 	MigrationConfig *MigrationConfig
 	ImagePullPolicy k8sv1.PullPolicy
+	MachineType     string
 }
 
 type MigrationConfig struct {
@@ -180,6 +182,10 @@ func (c *ClusterConfig) GetMigrationConfig() *MigrationConfig {
 
 func (c *ClusterConfig) GetImagePullPolicy() (policy k8sv1.PullPolicy) {
 	return c.getConfig().ImagePullPolicy
+}
+
+func (c *ClusterConfig) GetMachineType() string {
+	return c.getConfig().MachineType
 }
 
 // setConfig parses the provided config map and updates the provided config.
@@ -226,6 +232,9 @@ func setConfig(config *Config, configMap *k8sv1.ConfigMap) error {
 	default:
 		return fmt.Errorf("invalid debug.useEmulation in config: %v", useEmulation)
 	}
+
+	// set machine type
+	config.MachineType = strings.TrimSpace(configMap.Data[machineTypeKey])
 
 	return nil
 }
