@@ -22,6 +22,7 @@ docker_tag=devel
 docker_tag_alt=devel_alt
 kubeconfig=${BASE_PATH}/cluster/$KUBEVIRT_PROVIDER/.kubeconfig
 kubectl=${BASE_PATH}/cluster/$KUBEVIRT_PROVIDER/.kubectl
+gocli=${BASE_PATH}/cluster/cli.sh
 docker_prefix=localhost:$(_port registry)/kubevirt
 manifest_docker_prefix=registry:5000/kubevirt
 EOF
