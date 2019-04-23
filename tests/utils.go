@@ -72,6 +72,7 @@ import (
 	"kubevirt.io/kubevirt/pkg/controller"
 	"kubevirt.io/kubevirt/pkg/kubecli"
 	"kubevirt.io/kubevirt/pkg/log"
+	restCoverage "kubevirt.io/kubevirt/pkg/rest/coverage"
 	"kubevirt.io/kubevirt/pkg/util/net/dns"
 	virtconfig "kubevirt.io/kubevirt/pkg/virt-config"
 	"kubevirt.io/kubevirt/pkg/virt-controller/services"
@@ -87,6 +88,7 @@ var ContainerizedDataImporterNamespace = "cdi"
 var KubeVirtKubectlPath = ""
 var KubeVirtOcPath = ""
 var KubeVirtVirtctlPath = ""
+var KubeVirtGocliPath = ""
 var KubeVirtInstallNamespace string
 
 var DeployTestingInfrastructureFlag = false
@@ -100,6 +102,7 @@ func init() {
 	flag.StringVar(&KubeVirtKubectlPath, "kubectl-path", "", "Set path to kubectl binary")
 	flag.StringVar(&KubeVirtOcPath, "oc-path", "", "Set path to oc binary")
 	flag.StringVar(&KubeVirtVirtctlPath, "virtctl-path", "", "Set path to virtctl binary")
+	flag.StringVar(&KubeVirtGocliPath, "gocli-path", "", "Set path to gocli binary")
 	flag.StringVar(&KubeVirtInstallNamespace, "installed-namespace", "kubevirt", "Set the namespace KubeVirt is installed in")
 	flag.BoolVar(&DeployTestingInfrastructureFlag, "deploy-testing-infra", false, "Deploy testing infrastructure if set")
 	flag.StringVar(&PathToTestingInfrastrucureManifests, "path-to-testing-infra-manifests", "manifests/testing", "Set path to testing infrastructure manifests")
@@ -189,6 +192,11 @@ const VMIResource = "virtualmachineinstances"
 
 const (
 	SecretLabel = "kubevirt.io/secret"
+)
+
+const (
+	auditLogPath = "/var/lib/origin/audit-ocp.log"
+	swaggerPath  = "api/openapi-spec/swagger.json"
 )
 
 type ProcessFunc func(event *k8sv1.Event) (done bool)
@@ -443,6 +451,15 @@ func AfterTestSuitCleanup() {
 		WipeTestingInfrastructure()
 	}
 	removeNamespaces()
+
+	// generate REST API coverage report
+	auditLogs, _, err := RunCommandWithNS("", "gocli", "scp", auditLogPath, "-")
+	if err != nil {
+		fmt.Printf("Could not get audit log from %s, %s", auditLogPath, err)
+	}
+	if err := restCoverage.GenerateReport(auditLogs, swaggerPath, "/apis/kubevirt.io/v1alpha3/"); err != nil {
+		fmt.Println(err)
+	}
 
 	CleanNodes()
 }
@@ -2558,6 +2575,8 @@ func SkipIfNoCmd(cmdName string) {
 		cmdPath = KubeVirtKubectlPath
 	case "virtctl":
 		cmdPath = KubeVirtVirtctlPath
+	case "gocli":
+		cmdPath = KubeVirtGocliPath
 	}
 	if cmdPath == "" {
 		Skip(fmt.Sprintf("Skip test that requires %s binary", cmdName))
@@ -2612,6 +2631,8 @@ func CreateCommandWithNS(namespace string, cmdName string, args ...string) (stri
 		cmdPath = KubeVirtKubectlPath
 	case "virtctl":
 		cmdPath = KubeVirtVirtctlPath
+	case "gocli":
+		cmdPath = KubeVirtGocliPath
 	}
 
 	if cmdPath == "" {
