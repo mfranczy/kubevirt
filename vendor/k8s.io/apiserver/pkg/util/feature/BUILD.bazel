@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["feature_gate.go"],
+    importmap = "kubevirt.io/kubevirt/vendor/k8s.io/apiserver/pkg/util/feature",
+    importpath = "k8s.io/apiserver/pkg/util/feature",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/spf13/pflag:go_default_library",
+        "@com_github_golang_glog//:go_default_library",
+    ],
+)

@@ -529,6 +529,11 @@ imports:
   - third_party/forked/golang/json
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
+- name: k8s.io/apiserver
+  version: 9601a7bf41efece7e12a8f9f74d2c3b10cdd998e
+  subpackages:
+  - pkg/apis/audit
+  - pkg/apis/audit/v1
 - name: k8s.io/client-go
   version: 5e6a3d4e34f694e895b13ae728111e726a5b69df
   subpackages:
