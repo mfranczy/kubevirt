@@ -1,5 +1,5 @@
-hash: d9f54de5880e2870b0be418f89ee0c6688ad861e2fd0a25800458fd2e1e808e6
-updated: 2019-05-16T17:26:26.783851155Z
+hash: f22ec19257b1d3f72616a34ada8fe654310279547fdd6a6cf471ba15cef29c5f
+updated: 2019-05-28T10:02:37.378936266Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -107,7 +107,7 @@ imports:
   subpackages:
   - lru
 - name: github.com/golang/mock
-  version: d74b93584564161b2de771089ee697f07d8bd5b5
+  version: 140ae90f29eaaadc229f8d4b78f074b7f0611c1e
   subpackages:
   - gomock
 - name: github.com/golang/protobuf
@@ -205,7 +205,7 @@ imports:
 - name: github.com/modern-go/reflect2
   version: 05fbef0ca5da472bbf96c9322b84a53edc03c9fd
 - name: github.com/onsi/ginkgo
-  version: eea6ad008b96acdaa524f5b409513bf062b500ad
+  version: 4cb744166b80afeec15fd0b4446c640a7688cd51
   subpackages:
   - config
   - extensions/table
@@ -226,7 +226,7 @@ imports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: 6a48b4839f850fe696893f09085e3fc485d74a4a
+  version: efe19c39ca106ee4ed42a1b25e1a80a53be4831a
   subpackages:
   - format
   - ghttp
@@ -263,7 +263,7 @@ imports:
   - appregistry/package_appr
   - models
 - name: github.com/operator-framework/operator-marketplace
-  version: 94bf0884411c1d08149ab9c232ee4629d107136e
+  version: 5b0afc4a17f23503bb89d1ffc80bd7f48eb2f6d6
   subpackages:
   - pkg/apis/operators/v1
   - pkg/appregistry
@@ -288,13 +288,13 @@ imports:
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 5de912679dde65656c7f24523dec790b452f10e1
+  version: a7aeb8df3389edaf53efcc319ad0063cb27c3960
 - name: github.com/PuerkitoBio/purell
   version: 8a290539e2e8629dbc4e6bad948158f790ec31f4
 - name: github.com/PuerkitoBio/urlesc
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
 - name: github.com/spf13/cobra
-  version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
+  version: 67fc4837d267bc9bfd6e47f77783fcc3dffc68de
   subpackages:
   - cobra
 - name: github.com/spf13/pflag

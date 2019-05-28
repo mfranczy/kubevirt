@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = [
+        "clusteroperatortests.go",
         "nosetuptests.go",
         "operatorsourcetests.go",
     ],
@@ -12,6 +13,7 @@ go_library(
     deps = [
         "//vendor/github.com/operator-framework/operator-marketplace/test/helpers:go_default_library",
         "//vendor/github.com/operator-framework/operator-marketplace/test/testsuites:go_default_library",
+        "//vendor/github.com/stretchr/testify/require:go_default_library",
         "@com_github_operator_framework_operator_sdk//pkg/test:go_default_library",
     ],
 )

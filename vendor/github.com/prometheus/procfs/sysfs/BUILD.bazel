@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "class_power_supply.go",
         "class_thermal.go",
+        "clocksource.go",
         "doc.go",
         "fs.go",
         "net_class.go",
