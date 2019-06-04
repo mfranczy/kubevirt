@@ -72,7 +72,7 @@ var _ = Describe("Configurations", func() {
 	})
 
 	Describe("[rfe_id:140][crit:medium][vendor:cnv-qe@redhat.com][level:component]VirtualMachineInstance definition", func() {
-		Context("with 3 CPU cores", func() {
+		FContext("with 3 CPU cores", func() {
 			var vmi *v1.VirtualMachineInstance
 
 			BeforeEach(func() {

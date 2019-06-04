@@ -29,7 +29,7 @@ func getHTTPMethod(verb string) string {
 	// audit log does not contain info about HTTP methods
 
 	switch verb {
-	case "get", "list":
+	case "get", "list", "watch", "watchList":
 		return "GET"
 	case "create":
 		return "POST"
@@ -119,14 +119,14 @@ func extractBodyParams(params interface{}, path string, body map[string]int, cou
 	return nil
 }
 
-func calculateCoverage(restAPI map[string]Request) {
+func calculateCoverage(restAPI map[string]map[string]*RequestStats) {
 	paramsNum, paramsHit := 0, 0
 
 	fmt.Printf("\nREST API coverage report:\n\n")
 	for path, req := range restAPI {
 		fmt.Println("\t", path)
 
-		for _, stats := range req.Methods {
+		for _, stats := range req {
 			// count path hit
 			if stats.MethodCalled {
 				stats.ParamsHit++
@@ -191,14 +191,14 @@ func GenerateReport(auditLogs string, swaggerPath string, filter string) error {
 			continue
 		}
 
-		if _, ok := restAPI[path].Methods[method]; !ok {
+		if _, ok := restAPI[path][method]; !ok {
 			log.Log.Errorf("Method '%s' not found for '%s' path", method, path)
 			continue
 		}
 
-		restAPI[path].Methods[method].MethodCalled = true
-		matchQueryParams(uri.Query(), restAPI[path].Methods[method])
-		err = matchBodyParams(event.RequestObject, restAPI[path].Methods[method])
+		restAPI[path][method].MethodCalled = true
+		matchQueryParams(uri.Query(), restAPI[path][method])
+		err = matchBodyParams(event.RequestObject, restAPI[path][method])
 		if err != nil {
 			log.Log.Errorf("%s", err)
 		}
