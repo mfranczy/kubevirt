@@ -30,6 +30,7 @@ import (
 	"time"
 
 	secv1 "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
+	mcfgclient "github.com/openshift/machine-config-operator/pkg/generated/clientset/versioned"
 	autov1 "k8s.io/api/autoscaling/v1"
 	extclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	k8smetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -59,6 +60,7 @@ type KubevirtClient interface {
 	NetworkClient() networkclient.Interface
 	ExtensionsClient() extclient.Interface
 	SecClient() secv1.SecurityV1Interface
+	McfgClient() mcfgclient.Interface
 	DiscoveryClient() discovery.DiscoveryInterface
 	PrometheusClient() promclient.Interface
 	kubernetes.Interface
@@ -74,6 +76,7 @@ type kubevirt struct {
 	networkClient    *networkclient.Clientset
 	extensionsClient *extclient.Clientset
 	secClient        *secv1.SecurityV1Client
+	mcfgClient       *mcfgclient.Clientset
 	discoveryClient  *discovery.DiscoveryClient
 	prometheusClient *promclient.Clientset
 	*kubernetes.Clientset
@@ -97,6 +100,11 @@ func (k kubevirt) ExtensionsClient() extclient.Interface {
 
 func (k kubevirt) SecClient() secv1.SecurityV1Interface {
 	return k.secClient
+}
+
+// McfgClient returns machine-config-operator client for OpenShift 4.x
+func (k kubevirt) McfgClient() mcfgclient.Interface {
+	return k.mcfgClient
 }
 
 func (k kubevirt) DiscoveryClient() discovery.DiscoveryInterface {

@@ -26,6 +26,7 @@ import (
 	"sync"
 
 	secv1 "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
+	mcfgclient "github.com/openshift/machine-config-operator/pkg/generated/clientset/versioned"
 	"github.com/spf13/pflag"
 	extclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -105,6 +106,11 @@ func GetKubevirtSubresourceClientFromFlags(master string, kubeconfig string) (Ku
 		return nil, err
 	}
 
+	mcfgClient, err := mcfgclient.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return nil, err
@@ -124,6 +130,7 @@ func GetKubevirtSubresourceClientFromFlags(master string, kubeconfig string) (Ku
 		networkClient,
 		extensionsClient,
 		secClient,
+		mcfgClient,
 		discoveryClient,
 		prometheusClient,
 		coreClient,
@@ -239,6 +246,11 @@ func GetKubevirtClientFromRESTConfig(config *rest.Config) (KubevirtClient, error
 		return nil, err
 	}
 
+	mcfgClient, err := mcfgclient.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return nil, err
@@ -258,6 +270,7 @@ func GetKubevirtClientFromRESTConfig(config *rest.Config) (KubevirtClient, error
 		networkClient,
 		extensionsClient,
 		secClient,
+		mcfgClient,
 		discoveryClient,
 		prometheusClient,
 		coreClient,
