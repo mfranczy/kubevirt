@@ -498,6 +498,7 @@ spec:
           resources:
           - nodes
           verbs:
+          - get
           - patch
         - apiGroups:
           - ""
@@ -514,6 +515,12 @@ spec:
           - get
           - list
           - watch
+        - apiGroups:
+          - machineconfiguration.openshift.io
+          resources:
+          - machineconfigs
+          verbs:
+          - get
         - apiGroups:
           - ""
           resources:
