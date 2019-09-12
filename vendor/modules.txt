@@ -245,6 +245,7 @@ github.com/openshift/client-go/security/clientset/versioned/typed/security/v1
 github.com/openshift/client-go/security/clientset/versioned/typed/security/v1/fake
 github.com/openshift/client-go/security/clientset/versioned/scheme
 # github.com/openshift/machine-config-operator v4.2.0-alpha.0+incompatible
+github.com/openshift/machine-config-operator/pkg/daemon/constants
 github.com/openshift/machine-config-operator/pkg/generated/clientset/versioned
 github.com/openshift/machine-config-operator/pkg/generated/clientset/versioned/typed/machineconfiguration.openshift.io/v1
 github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1

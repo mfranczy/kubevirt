@@ -42,6 +42,8 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 
+	mcfgconst "github.com/openshift/machine-config-operator/pkg/daemon/constants"
+
 	container_disk "kubevirt.io/kubevirt/pkg/virt-handler/container-disk"
 
 	v1 "kubevirt.io/client-go/api/v1"
@@ -1556,6 +1558,7 @@ func (d *VirtualMachineController) updateDomainFunc(old, new interface{}) {
 }
 
 func (d *VirtualMachineController) heartBeat(interval time.Duration, stopCh chan struct{}) {
+	updateNodeCpuManagerLabel := d.getCPUManagerLabelFunc()
 	for {
 		wait.JitterUntil(func() {
 			now, err := json.Marshal(v12.Now())
@@ -1573,64 +1576,112 @@ func (d *VirtualMachineController) heartBeat(interval time.Duration, stopCh chan
 			// Label the node if cpu manager is running on it
 			// This is a temporary workaround until k8s bug #66525 is resolved
 			if d.clusterConfig.CPUManagerEnabled() {
-				d.updateNodeCpuManagerLabel()
+				updateNodeCpuManagerLabel()
 			}
 		}, interval, 1.2, true, stopCh)
 	}
 }
 
-func (d *VirtualMachineController) updateNodeCpuManagerLabel() {
-	entries, err := filepath.Glob("/proc/*/cmdline")
+func (d *VirtualMachineController) getCPUManagerLabelFunc() func() {
+	var lastConfigID string
+	machineConfigExists := true
+
+	apiClient := d.clientset.ExtensionsClient().ApiextensionsV1beta1()
+	_, err := apiClient.CustomResourceDefinitions().Get("machineconfigs.machineconfiguration.openshift.io", metav1.GetOptions{})
 	if err != nil {
-		log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
-		return
+		if errors.IsNotFound(err) {
+			machineConfigExists = false
+		} else {
+			log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
+		}
 	}
 
-	isEnabled := false
+	return func() {
+		var err error
+		isEnabled := false
+		updateRequired := true
 
-	// cpumanager discovery for OpenShift3
+		if !machineConfigExists {
+			// on OpenShift3 cpu manager policy is exposed in proc cmdline
+			isEnabled, err = discoverCPUPolicyProc()
+		} else {
+			// on OpenShift4 cpu manager policy is not exposed anymore in proc cmdline
+			// it's required to check machineconfiguration kind to get kubelet configuration for nodes
+			isEnabled, updateRequired, err = dicoverCPUPolicyMachineConf(d.clientset, &lastConfigID, d.host)
+			if err != nil {
+				log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
+				return
+			}
+		}
+
+		if updateRequired {
+			data := []byte(fmt.Sprintf(`{"metadata": { "labels": {"%s": "%t"}}}`, v1.CPUManager, isEnabled))
+			_, err = d.clientset.CoreV1().Nodes().Patch(d.host, types.StrategicMergePatchType, data)
+			if err != nil {
+				log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
+				return
+			}
+
+			log.DefaultLogger().V(4).Infof("Node has CPU Manager running: %t", isEnabled)
+		}
+	}
+}
+
+func discoverCPUPolicyProc() (bool, error) {
+	entries, err := filepath.Glob("/proc/*/cmdline")
+	if err != nil {
+		return false, err
+	}
+
 	for _, entry := range entries {
 		content, err := ioutil.ReadFile(entry)
 		if os.IsNotExist(err) {
 			// processes can disappear anytime, it is ok if they don't exist anymore
 			continue
 		} else if err != nil {
-			log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
-			return
+			return false, err
 		}
 		if strings.Contains(string(content), "kubelet") && strings.Contains(string(content), "cpu-manager-policy=static") {
-			isEnabled = true
-			break
+			return true, nil
 		}
 	}
 
-	// cpumanager discovery for OpenShift4
-	//  /apis/machineconfiguration.openshift.io/v1/machineconfigs/50-examplecorp-chrony
-	// how to discover https://github.com/openshift/machine-config-operator/blob/master/pkg/operator/operator.go#L206
-	if !isEnabled {
-		node, err := d.clientset.CoreV1().Nodes().Get(d.host, metav1.GetOptions{})
-		if err != nil {
-			log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
-			return
-		}
-		if val, ok := node.GetAnnotations()["machineconfiguration.openshift.io/currentConfig"]; ok {
-			config, err := d.clientset.McfgClient().MachineconfigurationV1().MachineConfigs().Get(val, metav1.GetOptions{})
-			if err != nil {
-				log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
-				return
-			}
-			log.Log.Infof("RESULT %+v ERR %+v", config, err)
-		}
-	}
+	return false, nil
+}
 
-	data := []byte(fmt.Sprintf(`{"metadata": { "labels": {"%s": "%t"}}}`, v1.CPUManager, isEnabled))
-	_, err = d.clientset.CoreV1().Nodes().Patch(d.host, types.StrategicMergePatchType, data)
+func dicoverCPUPolicyMachineConf(clientset kubecli.KubevirtClient, lastConfigID *string, host string) (isEnabled bool, updateRequired bool, err error) {
+	node, err := clientset.CoreV1().Nodes().Get(host, metav1.GetOptions{})
 	if err != nil {
-		log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
 		return
 	}
 
-	log.DefaultLogger().V(4).Infof("Node has CPU Manager running: %t", isEnabled)
+	currentConfigID, ok := node.GetAnnotations()[mcfgconst.CurrentMachineConfigAnnotationKey]
+	if !ok {
+		err = fmt.Errorf("Could not find machine configuration label: %s", mcfgconst.CurrentMachineConfigAnnotationKey)
+		return
+	}
+	if currentConfigID == *lastConfigID {
+		return
+	}
+	*lastConfigID = currentConfigID
+
+	config, err := clientset.McfgClient().MachineconfigurationV1().MachineConfigs().Get(currentConfigID, metav1.GetOptions{})
+	if err != nil {
+		return
+	}
+
+	for _, file := range config.Spec.Config.Storage.Files {
+		if !strings.Contains(file.Node.Path, "kubelet.conf") {
+			continue
+		}
+		updateRequired = true
+		if strings.Contains(file.FileEmbedded1.Contents.Source, "cpuManagerPolicy%3A%20static") {
+			isEnabled = true
+			return
+		}
+	}
+
+	return
 }
 
 func isACPIEnabled(vmi *v1.VirtualMachineInstance, domain *api.Domain) bool {

@@ -48,7 +48,7 @@ require (
 	github.com/onsi/gomega v1.5.1-0.20190515112211-6a48b4839f85
 	github.com/openshift/api v3.9.1-0.20190911180052-9f80b7806f58+incompatible
 	github.com/openshift/client-go v0.0.0-20190401163519-84c2b942258a
-	github.com/openshift/machine-config-operator v4.2.0-alpha.0+incompatible // indirect
+	github.com/openshift/machine-config-operator v4.2.0-alpha.0+incompatible
 	github.com/operator-framework/go-appr v0.0.0-20180917210448-f2aef88446f2 // indirect
 	github.com/operator-framework/operator-lifecycle-manager v0.0.0-20190128024246-5eb7ae5bdb7a
 	github.com/operator-framework/operator-marketplace v0.0.0-20190508022032-93d436f211c1

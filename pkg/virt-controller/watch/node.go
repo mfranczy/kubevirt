@@ -147,7 +147,7 @@ func (c *NodeController) Execute() bool {
 }
 
 func (c *NodeController) execute(key string) error {
-
+	log.Log.Infof("IT WORKS FOR THE NODE %s", key)
 	obj, nodeExists, err := c.nodeInformer.GetStore().GetByKey(key)
 	logger := log.DefaultLogger()
 
