@@ -98,6 +98,7 @@ func newHandlerClusterRole() *rbacv1.ClusterRole {
 					"nodes",
 				},
 				Verbs: []string{
+					"get",
 					"patch",
 				},
 			},
@@ -123,6 +124,17 @@ func newHandlerClusterRole() *rbacv1.ClusterRole {
 					"get",
 					"list",
 					"watch",
+				},
+			},
+			{
+				APIGroups: []string{
+					"machineconfiguration.openshift.io",
+				},
+				Resources: []string{
+					"machineconfigs",
+				},
+				Verbs: []string{
+					"get",
 				},
 			},
 		},

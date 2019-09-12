@@ -34,6 +34,7 @@ import (
 
 	k8sv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -1586,6 +1587,8 @@ func (d *VirtualMachineController) updateNodeCpuManagerLabel() {
 	}
 
 	isEnabled := false
+
+	// cpumanager discovery for OpenShift3
 	for _, entry := range entries {
 		content, err := ioutil.ReadFile(entry)
 		if os.IsNotExist(err) {
@@ -1601,14 +1604,33 @@ func (d *VirtualMachineController) updateNodeCpuManagerLabel() {
 		}
 	}
 
+	// cpumanager discovery for OpenShift4
+	//  /apis/machineconfiguration.openshift.io/v1/machineconfigs/50-examplecorp-chrony
+	// how to discover https://github.com/openshift/machine-config-operator/blob/master/pkg/operator/operator.go#L206
+	if !isEnabled {
+		node, err := d.clientset.CoreV1().Nodes().Get(d.host, metav1.GetOptions{})
+		if err != nil {
+			log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
+			return
+		}
+		if val, ok := node.GetAnnotations()["machineconfiguration.openshift.io/currentConfig"]; ok {
+			config, err := d.clientset.McfgClient().MachineconfigurationV1().MachineConfigs().Get(val, metav1.GetOptions{})
+			if err != nil {
+				log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
+				return
+			}
+			log.Log.Infof("RESULT %+v ERR %+v", config, err)
+		}
+	}
+
 	data := []byte(fmt.Sprintf(`{"metadata": { "labels": {"%s": "%t"}}}`, v1.CPUManager, isEnabled))
 	_, err = d.clientset.CoreV1().Nodes().Patch(d.host, types.StrategicMergePatchType, data)
 	if err != nil {
 		log.DefaultLogger().Reason(err).Errorf("failed to set a cpu manager label on host %s", d.host)
 		return
 	}
-	log.DefaultLogger().V(4).Infof("Node has CPU Manager running")
 
+	log.DefaultLogger().V(4).Infof("Node has CPU Manager running: %t", isEnabled)
 }
 
 func isACPIEnabled(vmi *v1.VirtualMachineInstance, domain *api.Domain) bool {
