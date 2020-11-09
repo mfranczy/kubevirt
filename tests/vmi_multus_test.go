@@ -499,10 +499,18 @@ var _ = Describe("[Serial]Multus", func() {
 					linuxBridgeNetwork,
 				}
 
-				ep1Ip := "1.0.0.10/24"
-				ep2Ip := "1.0.0.11/24"
-				ep1IpV6 := "fe80::ce3d:82ff:fe52:24c0/64"
-				ep2IpV6 := "fe80::ce3d:82ff:fe52:24c1/64"
+				v4Mask := "/24"
+				ep1Ip := "1.0.0.10"
+				ep2Ip := "1.0.0.11"
+				ep1Cidr := ep1Ip + v4Mask
+				ep2Cidr := ep2Ip + v4Mask
+
+				v6Mask := "/64"
+				ep1IpV6 := "fe80::ce3d:82ff:fe52:24c0"
+				ep2IpV6 := "fe80::ce3d:82ff:fe52:24c1"
+				ep1CidrV6 := ep1IpV6 + v6Mask
+				ep2CidrV6 := ep2IpV6 + v6Mask
+
 				userdata := fmt.Sprintf(`#!/bin/bash
                     echo "fedora" |passwd fedora --stdin
                     setenforce 0
@@ -516,7 +524,7 @@ var _ = Describe("[Serial]Multus", func() {
                     chmod +x /usr/local/bin/qemu-ga
 		    curl %s > /lib64/libpixman-1.so.0
                     systemd-run --unit=guestagent /usr/local/bin/qemu-ga
-                `, ep1Ip, ep2Ip, ep1IpV6, ep2IpV6, tests.GetUrl(tests.GuestAgentHttpUrl), tests.GetUrl(tests.PixmanUrl))
+                `, ep1Cidr, ep2Cidr, ep1CidrV6, ep2CidrV6, tests.GetUrl(tests.GuestAgentHttpUrl), tests.GetUrl(tests.PixmanUrl))
 				agentVMI := tests.NewRandomVMIWithEphemeralDiskAndUserdata(cd.ContainerDiskFor(cd.ContainerDiskFedora), userdata)
 
 				agentVMI.Spec.Domain.Devices.Interfaces = interfaces
@@ -554,15 +562,21 @@ var _ = Describe("[Serial]Multus", func() {
 				Expect(interfaceByIfcName["eth1"].Name).To(Equal("linux-bridge"))
 				Expect(interfaceByIfcName["eth1"].InterfaceName).To(Equal("eth1"))
 
+				By("Testing the ep1 interface")
 				Expect(interfaceByIfcName["ep1"].Name).To(Equal(""))
 				Expect(interfaceByIfcName["ep1"].InterfaceName).To(Equal("ep1"))
 				Expect(interfaceByIfcName["ep1"].IP).To(Equal(ep1Ip))
 				Expect(interfaceByIfcName["ep1"].IPs).To(Equal([]string{ep1Ip, ep1IpV6}))
+				Expect(interfaceByIfcName["ep1"].CIDR).To(Equal(ep1Cidr))
+				Expect(interfaceByIfcName["ep1"].CIDRs).To(Equal([]string{ep1Cidr, ep1CidrV6}))
 
+				By("Testing the ep2 interface")
 				Expect(interfaceByIfcName["ep2"].Name).To(Equal(""))
 				Expect(interfaceByIfcName["ep2"].InterfaceName).To(Equal("ep2"))
 				Expect(interfaceByIfcName["ep2"].IP).To(Equal(ep2Ip))
 				Expect(interfaceByIfcName["ep2"].IPs).To(Equal([]string{ep2Ip, ep2IpV6}))
+				Expect(interfaceByIfcName["ep2"].CIDR).To(Equal(ep2Cidr))
+				Expect(interfaceByIfcName["ep2"].CIDRs).To(Equal([]string{ep2Cidr, ep2CidrV6}))
 			})
 		})
 	})

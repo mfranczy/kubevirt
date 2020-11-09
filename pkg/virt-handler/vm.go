@@ -610,6 +610,8 @@ func (d *VirtualMachineController) updateVMIStatus(vmi *v1.VirtualMachineInstanc
 					if !isForwardingBindingInterface {
 						newInterface.IP = interfaceStatus.Ip
 						newInterface.IPs = interfaceStatus.IPs
+						newInterface.CIDR = interfaceStatus.CIDR
+						newInterface.CIDRs = interfaceStatus.CIDRs
 					}
 					delete(domainInterfaceStatusByMac, interfaceMAC)
 				}

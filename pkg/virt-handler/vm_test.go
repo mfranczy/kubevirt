@@ -1923,8 +1923,10 @@ var _ = Describe("VirtualMachineInstance", func() {
 
 			interfaceName := "interface_name"
 			mac := "C0:01:BE:E7:15:G0:0D"
-			ip := "2.2.2.2/24"
-			ips := []string{"2.2.2.2/24", "3.3.3.3/16"}
+			ip := "2.2.2.2"
+			ips := []string{"2.2.2.2", "3.3.3.3"}
+			cidr := "2.2.2.2/24"
+			cidrs := []string{"2.2.2.2/24", "3.3.3.3/16"}
 
 			vmi.Status.Interfaces = []v1.VirtualMachineInstanceNetworkInterface{
 				{
@@ -1946,10 +1948,12 @@ var _ = Describe("VirtualMachineInstance", func() {
 			}
 			domain.Status.Interfaces = []api.InterfaceStatus{
 				{
-					Name: interfaceName,
-					Mac:  mac,
-					Ip:   ip,
-					IPs:  ips,
+					Name:  interfaceName,
+					Mac:   mac,
+					Ip:    ip,
+					IPs:   ips,
+					CIDR:  cidr,
+					CIDRs: cidrs,
 				},
 			}
 
@@ -1962,6 +1966,8 @@ var _ = Describe("VirtualMachineInstance", func() {
 				Expect(arg.(*v1.VirtualMachineInstance).Status.Interfaces[0].MAC).To(Equal(mac))
 				Expect(arg.(*v1.VirtualMachineInstance).Status.Interfaces[0].IP).To(Equal(ip))
 				Expect(arg.(*v1.VirtualMachineInstance).Status.Interfaces[0].IPs).To(Equal(ips))
+				Expect(arg.(*v1.VirtualMachineInstance).Status.Interfaces[0].CIDR).To(Equal(cidr))
+				Expect(arg.(*v1.VirtualMachineInstance).Status.Interfaces[0].CIDRs).To(Equal(cidrs))
 			}).Return(vmi, nil)
 
 			controller.Execute()

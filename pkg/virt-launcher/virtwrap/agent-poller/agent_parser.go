@@ -254,31 +254,43 @@ func convertInterfaceStatusesFromAgentJSON(agentResult []Interface) []api.Interf
 			continue
 		}
 
-		interfaceIP, interfaceIPs := extractIPs(ifc.IPs)
+		ip, ips, cidr, cidrs := extractNetwork(ifc.IPs)
 		interfaceStatuses = append(interfaceStatuses, api.InterfaceStatus{
 			Mac:           ifc.MAC,
-			Ip:            interfaceIP,
-			IPs:           interfaceIPs,
+			Ip:            ip,
+			IPs:           ips,
+			CIDR:          cidr,
+			CIDRs:         cidrs,
 			InterfaceName: ifc.Name,
 		})
 	}
 	return interfaceStatuses
 }
 
-func extractIPs(ipAddresses []IP) (string, []string) {
+func extractNetwork(ipAddresses []IP) (string, []string, string, []string) {
 	interfaceIPs := []string{}
+	interfaceCIDRs := []string{}
+
 	var interfaceIP string
+	var interfaceCIDR string
+
 	for _, ipAddr := range ipAddresses {
-		ip := fmt.Sprintf("%s/%d", ipAddr.IP, ipAddr.Prefix)
+		ip := ipAddr.IP
+		cidr := fmt.Sprintf("%s/%d", ip, ipAddr.Prefix)
 		// Prefer ipv4 as the main interface IP
 		if ipAddr.Type == "ipv4" && interfaceIP == "" {
 			interfaceIP = ip
+			interfaceCIDR = cidr
 		}
 		interfaceIPs = append(interfaceIPs, ip)
+		interfaceCIDRs = append(interfaceCIDRs, cidr)
 	}
 	// If no ipv4 interface was found, set any IP as the main IP of interface
 	if interfaceIP == "" && len(interfaceIPs) > 0 {
 		interfaceIP = interfaceIPs[0]
 	}
-	return interfaceIP, interfaceIPs
+	if interfaceCIDR == "" && len(interfaceCIDRs) > 0 {
+		interfaceCIDR = interfaceCIDRs[0]
+	}
+	return interfaceIP, interfaceIPs, interfaceCIDR, interfaceCIDRs
 }

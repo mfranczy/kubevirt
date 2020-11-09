@@ -162,6 +162,7 @@ API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachin
 API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstanceList,Items
 API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstanceMigrationList,Items
 API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstanceMigrationStatus,Conditions
+API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstanceNetworkInterface,CIDRs
 API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstanceNetworkInterface,IPs
 API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstancePresetList,Items
 API rule violation: list_type_missing,kubevirt.io/client-go/api/v1,VirtualMachineInstanceReplicaSetList,Items
@@ -251,6 +252,7 @@ API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInsta
 API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInstanceGuestAgentInfo,GAVersion
 API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInstanceGuestOSInfo,VersionID
 API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInstanceMigrationState,MigrationUID
+API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInstanceNetworkInterface,CIDRs
 API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInstanceNetworkInterface,IP
 API rule violation: names_match,kubevirt.io/client-go/api/v1,VirtualMachineInstanceNetworkInterface,IPs
 API rule violation: names_match,kubevirt.io/client-go/api/v1,WatchdogDevice,I6300ESB

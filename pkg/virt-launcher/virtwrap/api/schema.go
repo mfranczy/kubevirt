@@ -130,6 +130,8 @@ type InterfaceStatus struct {
 	Mac           string
 	Ip            string
 	IPs           []string
+	CIDR          string
+	CIDRs         []string
 	InterfaceName string
 }
 

@@ -348,6 +348,8 @@ type VirtualMachineInstanceNetworkInterface struct {
 	// IP address of a Virtual Machine interface. It is always the first item of
 	// IPs
 	IP string `json:"ipAddress,omitempty"`
+	// CIDR of a Virtual Machine interface. It is always the first item of CIDRs
+	CIDR string `json:"cidr,omitempty"`
 	// Hardware address of a Virtual Machine interface
 	MAC string `json:"mac,omitempty"`
 	// Name of the interface, corresponds to name of the network assigned to the interface
@@ -355,6 +357,8 @@ type VirtualMachineInstanceNetworkInterface struct {
 	Name string `json:"name,omitempty"`
 	// List of all IP addresses of a Virtual Machine interface
 	IPs []string `json:"ipAddresses,omitempty"`
+	// List of all IP addresses of a Virtual Machine interface
+	CIDRs []string `json:"cidrs,omitempty"`
 	// The interface name inside the Virtual Machine
 	InterfaceName string `json:"interfaceName,omitempty"`
 }

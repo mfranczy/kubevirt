@@ -1817,6 +1817,11 @@ func (in *InterfaceStatus) DeepCopyInto(out *InterfaceStatus) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.CIDRs != nil {
+		in, out := &in.CIDRs, &out.CIDRs
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	return
 }
 

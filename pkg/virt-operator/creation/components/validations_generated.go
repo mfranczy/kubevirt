@@ -4537,6 +4537,14 @@ var CRDsValidation map[string]string = map[string]string{
           description: Interfaces represent the details of available network interfaces.
           items:
             properties:
+              cidr:
+                description: CIDR of a Virtual Machine interface. It is always the first item of CIDRs
+                type: string
+              cidrs:
+                description: List of all IP addresses of a Virtual Machine interface
+                items:
+                  type: string
+                type: array
               interfaceName:
                 description: The interface name inside the Virtual Machine
                 type: string

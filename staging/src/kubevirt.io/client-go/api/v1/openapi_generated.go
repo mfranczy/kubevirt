@@ -17604,6 +17604,13 @@ func schema_kubevirtio_client_go_api_v1_VirtualMachineInstanceNetworkInterface(r
 							Format:      "",
 						},
 					},
+					"cidr": {
+						SchemaProps: spec.SchemaProps{
+							Description: "CIDR of a Virtual Machine interface. It is always the first item of CIDRs",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"mac": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Hardware address of a Virtual Machine interface",
@@ -17619,6 +17626,20 @@ func schema_kubevirtio_client_go_api_v1_VirtualMachineInstanceNetworkInterface(r
 						},
 					},
 					"ipAddresses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of all IP addresses of a Virtual Machine interface",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"cidrs": {
 						SchemaProps: spec.SchemaProps{
 							Description: "List of all IP addresses of a Virtual Machine interface",
 							Type:        []string{"array"},

@@ -10286,6 +10286,17 @@
    "v1.VirtualMachineInstanceNetworkInterface": {
     "type": "object",
     "properties": {
+     "cidr": {
+      "description": "CIDR of a Virtual Machine interface. It is always the first item of CIDRs",
+      "type": "string"
+     },
+     "cidrs": {
+      "description": "List of all IP addresses of a Virtual Machine interface",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
      "interfaceName": {
       "description": "The interface name inside the Virtual Machine",
       "type": "string"
